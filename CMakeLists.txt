@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 project(ep VERSION 0.1 LANGUAGES C)
 
+enable_testing()
+
 add_library(ip4ethparser
   include/ip4ethparser.h
   src/ip4ethparser.c
@@ -70,3 +72,5 @@ target_compile_definitions(ep
         #$<$<CXX_COMPILER_ID:MSVC>:$<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=2>>
         
 )
+
+add_subdirectory(tests)

@@ -74,11 +74,11 @@ bool ethIpv4Parse (const void* buffer, size_t bufLen, Ipv4Info* info)
 			fprintf(stderr, "Buffer overrun.");
 			exit(1);
 		}
-		info->protocol = (*curr_pos & 0xF0 >> 4);
-		if ((*curr_pos & 0x0F) > MIN_IP4_HEADER_SIZE)
-			info->optionsPresent = true;
+		info->protocol = ((*curr_pos & 0xF0) >> 4);
+		info->optionsPresent = ((*curr_pos & 0x0F)*4) > MIN_IP4_HEADER_SIZE;
 		++curr_pos;
 		info->dscp = *curr_pos >> 2;
+		return true;
 	}
 
 	return false;

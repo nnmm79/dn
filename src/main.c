@@ -12,7 +12,12 @@ void HexString2ByteArray(uint8_t* arr, size_t arr_cnt, const char* hexstring)
 	if (len % 2 != 0)
 	{
 		printf("Hexstream size must be divisible by 2, we get %d", (int)len);	// what is format specifier? ull does not seem to work?
-		abort();
+		exit(2);
+	}
+	if((len / 2) > arr_cnt)
+	{
+		printf("Buffer too small, string is %d characters long, 2 characters per byte.", (int)len);
+		exit(3);
 	}
     /* WARNING: no sanitization or error-checking whatsoever */
     for (size_t count = 0; count < arr_cnt; count++) {
@@ -20,20 +25,37 @@ void HexString2ByteArray(uint8_t* arr, size_t arr_cnt, const char* hexstring)
 			break;
 		if (sscanf(pos, "%2hhx", &arr[count]) <= 0)
 		{
-			printf("Buffer too small, string is %d characters long, 2 characters per byte.", (int)len);
-			exit(2);
+			printf("Invalid hexadecimal character: '%c' or '%c'", *pos, *(pos+1));
+			exit(4);
 		}
         pos += 2;
     }
 	return;
 }
-int main()
+int main(int argc, char* argv[])
 {
+	if (argc < 6)
+		return 91;
 	printf("Application started\n");
 	uint8_t buf[LARGEST_ETHERNET_PACKET_SIZE];
-	HexString2ByteArray(&buf[0], LARGEST_ETHERNET_PACKET_SIZE, "145afc168c4f1027f51c3eea0800450000286d2f400039062f22d1c50308c0a810090050f30a635f2af360d81808501100930f3400000000b2e01954");
+	HexString2ByteArray(&buf[0], LARGEST_ETHERNET_PACKET_SIZE, argv[1]);
 	Ipv4Info info;
+	info.dscp = 99;
+	info.optionsPresent = true;
+	info.protocol = 99;
 	bool res = ethIpv4Parse(&buf, sizeof(buf), &info);
+	if (res != (bool)(atoi(argv[2])))
+		return 92;
+	
+	if (info.dscp != atoi(argv[3]))
+		return 93;
+	
+	if (info.optionsPresent != (bool)atoi(argv[4]))
+		return 94;
+
+	if (info.protocol != atoi(argv[5]))
+		return 95;
+
 	printf("Application closing\n");
 	return 0;
 }
